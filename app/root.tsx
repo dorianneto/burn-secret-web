@@ -84,7 +84,6 @@ const Document = withEmotionCache(
           </main>
           <ScrollRestoration />
           <Scripts />
-          <LiveReload />
         </body>
       </html>
     );

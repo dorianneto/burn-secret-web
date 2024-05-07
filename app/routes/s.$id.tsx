@@ -6,11 +6,27 @@ import {
   useLoaderData,
   useRouteError,
 } from "@remix-run/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
-  return json({ data: "bar" });
-  // return json({ data: null });
+    const rawResponse = await fetch(`http://localhost/api/v1/secret/${params.id}`, {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+  });
+  const content = await rawResponse.json();
+
+  await fetch(`http://localhost/api/v1/secret/${params.id}/burn`, {
+    method: "DELETE",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+  });
+
+  return json({ content });
 };
 
 export function ErrorBoundary() {
@@ -32,7 +48,8 @@ export function ErrorBoundary() {
 
 export default function SecretNew() {
   const [isRevealed, setIsRevealed] = useState(false);
-  const { data } = useLoaderData<typeof loader>();
+  const { content } = useLoaderData<typeof loader>();
+  const { data } = content;
   const toast = useToast();
 
   if (data === null) {
@@ -41,14 +58,6 @@ export default function SecretNew() {
       statusText: "Secret not found",
     });
   }
-
-  useEffect(() => {
-    if (isRevealed === false) {
-      return;
-    }
-
-    console.log("delete secret");
-  }, [isRevealed]);
 
   return (
     <Card variant="elevated">
@@ -78,7 +87,7 @@ export default function SecretNew() {
         {isRevealed === true && (
           <>
             <p id="secret-content" className="text-xl my-8">
-              {data}
+              {data.secret}
             </p>
             <Button
               leftIcon={<CopyIcon />}

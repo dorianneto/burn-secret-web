@@ -1,20 +1,37 @@
 import { CopyIcon } from "@chakra-ui/icons";
 import { Button, Card, CardBody, Tooltip, useToast } from "@chakra-ui/react";
+import { LoaderFunctionArgs, json } from "@remix-run/node";
+import { useLoaderData, useLocation } from "@remix-run/react";
+import { commitSession, getSession } from "~/sessions";
 
-export const loader = async ({ params }: LoaderFunctionArgs) => {
-  return null;
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const session = await getSession(request.headers.get("Cookie"));
+  const secretKey = session.get("secretKey") || null;
+
+  return json(
+    { secretKey },
+    {
+      headers: {
+        "Set-Cookie": await commitSession(session),
+      },
+    }
+  );
 };
 
 export default function SecretNew() {
-  //   const { contact } = useLoaderData<typeof loader>();
+  const { secretKey } = useLoaderData<typeof loader>();
+  const location = useLocation();
   const toast = useToast();
 
   return (
     <Card variant="elevated">
       <CardBody>
-        <Tooltip label="Reminder: this link will be burned within 12 hours" placement="top">
+        <Tooltip
+          label="Reminder: this link will be burned within 12 hours"
+          placement="top"
+        >
           <p id="secret-link" className="text-xl my-8">
-            https://burnsecret.link/s/abc-123-def-456-ghi-789
+            {`http://localhost:5173/s/${secretKey}`}
           </p>
         </Tooltip>
         <Button

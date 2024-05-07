@@ -10,10 +10,30 @@ import {
 } from "@chakra-ui/react";
 import { ActionFunctionArgs, redirect } from "@remix-run/node";
 import { Form, useNavigation } from "@remix-run/react";
+import { commitSession, getSession } from "~/sessions";
 
 export async function action({ request }: ActionFunctionArgs) {
-  // const body = await request.formData();
-  return redirect("s/new");
+  const session = await getSession(request.headers.get("Cookie"));
+
+  const body = await request.formData();
+
+  const rawResponse = await fetch("http://localhost/api/v1/secret/generate", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ secret: body.get("secret") }),
+  });
+  const content = await rawResponse.json();
+
+  session.flash("secretKey", content.data.secret_key);
+
+  return redirect("s/new", {
+    headers: {
+      "Set-Cookie": await commitSession(session),
+    },
+  });
 }
 
 export default function Index() {
@@ -26,7 +46,7 @@ export default function Index() {
           <Textarea placeholder="Secret content goes here..." name="secret" />
         </CardBody>
       </Card>
-      <Card variant="elevated">
+      {/* <Card variant="elevated">
         <CardBody className="flex gap-8">
           <InputGroup>
             <InputLeftAddon>Passphrase</InputLeftAddon>
@@ -46,7 +66,7 @@ export default function Index() {
             <option value="option3">15 minutes</option>
           </Select>
         </CardBody>
-      </Card>
+      </Card> */}
       <Button
         colorScheme="orange"
         type="submit"
