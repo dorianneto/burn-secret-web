@@ -17,7 +17,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const body = await request.formData();
 
-  const rawResponse = await fetch("http://localhost/api/v1/secret/generate", {
+  const rawResponse = await fetch("http://nginx/api/v1/secret/generate", {
     method: "POST",
     headers: {
       Accept: "application/json",

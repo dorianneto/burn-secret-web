@@ -9,7 +9,7 @@ import {
 import { useState } from "react";
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
-    const rawResponse = await fetch(`http://localhost/api/v1/secret/${params.id}`, {
+    const rawResponse = await fetch(`http://nginx/api/v1/secret/${params.id}`, {
     method: "GET",
     headers: {
       Accept: "application/json",
@@ -18,7 +18,7 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
   });
   const content = await rawResponse.json();
 
-  await fetch(`http://localhost/api/v1/secret/${params.id}/burn`, {
+  await fetch(`http://nginx/api/v1/secret/${params.id}/burn`, {
     method: "DELETE",
     headers: {
       Accept: "application/json",

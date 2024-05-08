@@ -31,7 +31,7 @@ export default function SecretNew() {
           placement="top"
         >
           <p id="secret-link" className="text-xl my-8">
-            {`http://localhost:5173/s/${secretKey}`}
+            {`http://localhost:3000/s/${secretKey}`}
           </p>
         </Tooltip>
         <Button
